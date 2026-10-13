@@ -14,9 +14,10 @@
 ### 2️⃣ Install Node.js
 * 📥 Download and install the LTS version of **Node.js** (v20 or newer) from [nodejs.org](https://nodejs.org/).
 * 💻 Open Command Prompt and verify the installation:
-  ```cmd
-  node -v
-  npm -v
+
+```cmd
+node -v
+npm -v
 3️⃣ Install DCMTK (DICOM Toolkit)
 📥 Download the Windows 64-bit binaries (zip file) from the DCMTK official site.
 
