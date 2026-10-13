@@ -1,49 +1,190 @@
-🖨️ DICOM Print to PDF Server
+# 🖨️ DICOM Print to PDF Server
 
-Overview: This system acts as a virtual DICOM printer. It receives film prints from modalities (CT, MRI, X-Ray), saves every print job as a PDF at the actual film size, and allows you to view or download them date-wise from a web interface. 🏥📄
+<p align="center">
+  <strong>A Virtual DICOM Printer for CT, MRI, and X-Ray Modalities</strong>
+</p>
 
-🚀 Prerequisites & Installation
+<p align="center">
+  Convert DICOM film print jobs into properly sized PDF documents and access them through a simple web dashboard.
+</p>
 
-1️⃣ Install XAMPP (Web Server & PHP)
+<p align="center">
+  <img src="https://img.shields.io/badge/Platform-Windows-0078D4?style=for-the-badge&logo=windows" alt="Windows">
+  <img src="https://img.shields.io/badge/Backend-Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js">
+  <img src="https://img.shields.io/badge/Web_Server-Apache-D22128?style=for-the-badge&logo=apache" alt="Apache">
+  <img src="https://img.shields.io/badge/Protocol-DICOM-0A7EA4?style=for-the-badge" alt="DICOM">
+  <img src="https://img.shields.io/badge/Output-PDF-red?style=for-the-badge&logo=adobeacrobatreader" alt="PDF">
+</p>
 
-📥 Download and install XAMPP from apachefriends.org.
+---
 
-▶️ Start the Apache service from the XAMPP Control Panel.
+## 📌 Overview
 
-📂 The web root directory will be C:\xampp\htdocs.
+**DICOM Print to PDF Server** is a Windows-based virtual DICOM printer designed for medical imaging environments.
 
-2️⃣ Install Node.js
+It receives film print jobs from compatible medical imaging modalities, such as CT, MRI, and X-Ray systems, processes the jobs using DCMTK, and saves the resulting print output as PDF files at the configured film size.
 
-📥 Download and install the LTS version of Node.js (v20 or newer) from nodejs.org.
+A web-based interface allows authorized users on the network to view and download generated PDF documents.
 
-💻 Open Command Prompt and verify the installation:
+### ✨ Key Features
 
+- 🏥 **DICOM Print Reception** — Receive print jobs from compatible imaging modalities.
+- 🖨️ **Virtual Printer** — Process DICOM print jobs without requiring a physical film printer.
+- 📄 **PDF Output** — Generate PDF documents using the configured film dimensions.
+- 📅 **Date-Wise Access** — Browse generated documents by date through the web interface.
+- 🌐 **Web Dashboard** — Access the application through a browser on the local network.
+- ⚙️ **Background Services** — Run the DICOM receiver and PDF watcher using PM2.
+- 🔄 **Automatic Restart** — Restart supported background processes after failures.
+- 🇮🇳 **Timezone Configuration** — Configure the application timezone, including `Asia/Kolkata`.
+
+> **Note:** PDF generation, film-size handling, date-wise organization, and dashboard functionality depend on the implementation and configuration included in the project.
+
+---
+
+## 🏗️ System Architecture
+
+```text
+┌─────────────────────────────┐
+│     CT / MRI / X-Ray        │
+│       DICOM Modality        │
+└──────────────┬──────────────┘
+               │
+               │ DICOM Print
+               │ TCP Port 1122
+               ▼
+┌─────────────────────────────┐
+│       DCMTK Print SCP       │
+│       dcmprscp / DCMTK      │
+└──────────────┬──────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│     Print Job Database      │
+│       /data/database        │
+└──────────────┬──────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│      PDF File Watcher       │
+│         watcher.js          │
+└──────────────┬──────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│       Generated PDFs        │
+└──────────────┬──────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│      Apache Web Server      │
+│       PHP Dashboard         │
+└──────────────┬──────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│  View / Browse / Download   │
+│       PDF Documents         │
+└─────────────────────────────┘
+```
+
+---
+
+## 📋 Prerequisites
+
+Install the following software before configuring the application.
+
+| Software | Requirement | Purpose |
+|---|---|---|
+| XAMPP | Apache and PHP | Web dashboard |
+| Node.js | Version 20 or newer | Background services |
+| npm | Bundled with Node.js | Package installation |
+| DCMTK | Windows 64-bit binaries | DICOM print processing |
+| PM2 | Global installation | Process management |
+| Windows Firewall | Administrative access | Allow DICOM network traffic |
+
+---
+
+## 🚀 Installation Guide
+
+### Step 1 — Install XAMPP
+
+1. Download XAMPP from the [official website](https://www.apachefriends.org/).
+2. Install XAMPP on your Windows computer.
+3. Open the XAMPP Control Panel.
+4. Start the **Apache** service.
+5. Confirm that the default web root directory exists.
+
+```text
+C:\xampp\htdocs
+```
+
+### Step 2 — Install Node.js
+
+1. Download the LTS version of Node.js from [nodejs.org](https://nodejs.org/).
+2. Install Node.js and npm.
+3. Open Command Prompt and verify the installation.
+
+```bash
 node -v
 npm -v
+```
 
+**Requirement:** Node.js v20 or newer.
 
-3️⃣ Install DCMTK (DICOM Toolkit)
+### Step 3 — Install DCMTK
 
-📥 Download the Windows 64-bit binaries (zip file) from the DCMTK official site.
+1. Download the Windows 64-bit binaries from the [official DCMTK website](https://dicom.offis.de/dcmtk.php.en).
+2. Extract the downloaded archive to the `C:\dcmtk` directory.
+3. Verify that the executable files are available in the following folder.
 
-🗜️ Extract the entire zip folder to your C: drive so that the binary files exist at C:\dcmtk\bin.
+```text
+C:\dcmtk\bin
+```
 
-4️⃣ Setup the Project
+The DCMTK executable paths must match the actual installation directory.
 
-📋 Copy or clone this project folder into your XAMPP web root directory.
+### Step 4 — Copy the Project
 
-📍 The main path should be: C:\xampp\htdocs\dicom_print
+Copy or clone the project into the XAMPP web root.
 
-🛠️ Required Path Configurations
+The expected directory structure is:
 
-Before starting the server, you must update the hardcoded paths in the following 5 files to point to your new directory.
+```text
+C:\xampp\htdocs\dicom_print\
+│
+├── ecosystem.config.js
+├── scp-runner.js
+├── watcher.js
+├── dcmprscp.cfg
+├── config.json
+├── package.json
+├── index.php
+│
+└── data\
+    └── database\
+```
 
-⚠️ IMPORTANT: Always use forward slashes (/) or double backslashes (\\) in these configurations. Do not use single backslashes (\).
+> **Important:** This is an illustrative directory structure. Keep the actual filenames and folders supplied by your project. Do not create placeholder files in place of existing application files.
 
-📄 1. ecosystem.config.js
+---
 
-Update the script and cwd paths for both applications.
+## ⚙️ Configuration
 
+Before starting the services, update the application paths and settings to match your installation.
+
+**Default project directory:**
+
+```text
+C:/xampp/htdocs/dicom_print
+```
+
+Use forward slashes (`/`) in JavaScript and INI path values, or properly escaped backslashes (`\\`) in JSON strings.
+
+### 1. Configure `ecosystem.config.js`
+
+Update the script and working directory paths for both background applications.
+
+```javascript
 module.exports = {
   apps: [
     {
@@ -62,33 +203,46 @@ module.exports = {
     },
   ],
 };
+```
 
+### 2. Configure `scp-runner.js`
 
-📄 2. scp-runner.js
+Update the DCMTK configuration file path.
 
-Update the path to the configuration file in line 7.
+```javascript
+const ARGS = [
+  '-c',
+  'C:/xampp/htdocs/dicom_print/dcmprscp.cfg',
+  '-p',
+  'PDF_DICOM',
+  '-v'
+];
+```
 
-const ARGS = ['-c', 'C:/xampp/htdocs/dicom_print/dcmprscp.cfg', '-p', 'PDF_DICOM', '-v'];
+### 3. Configure `watcher.js`
 
+Update the main application directory.
 
-📄 3. watcher.js
-
-Update the main application path in line 15.
-
+```javascript
 const APP = 'C:/xampp/htdocs/dicom_print';
+```
 
+### 4. Configure `dcmprscp.cfg`
 
-📄 4. dcmprscp.cfg (or dcmprscp.template.cfg)
+Locate the `[Printer_Database]` section and update the database path.
 
-Find the [Printer_Database] section and update the Database path.
-
+```ini
+[Printer_Database]
 Database = "C:/xampp/htdocs/dicom_print/data/database"
+```
 
+If your project uses `dcmprscp.template.cfg`, update the template instead and follow the project's configuration-generation process.
 
-📄 5. config.json
+### 5. Configure `config.json`
 
-Verify the path to your DCMTK installation, AE Title, and port settings.
+Verify the DCMTK directory, DICOM Application Entity Title, listening port, timezone, and default film size.
 
+```json
 {
   "dcmtkBin": "C:\\dcmtk\\bin",
   "aeTitle": "PDF_DICOM",
@@ -96,50 +250,341 @@ Verify the path to your DCMTK installation, AE Title, and port settings.
   "timezone": "Asia/Kolkata",
   "defaultFilm": "14INX17IN"
 }
+```
 
+**Configuration reference**
 
-📦 Install Dependencies & Open Firewall
+| Setting | Value | Description |
+|---|---|---|
+| `dcmtkBin` | `C:\dcmtk\bin` | DCMTK binary directory |
+| `aeTitle` | `PDF_DICOM` | DICOM printer AE Title |
+| `port` | `1122` | Configured DICOM listener port |
+| `timezone` | `Asia/Kolkata` | Application timezone |
+| `defaultFilm` | `14INX17IN` | Default film-size setting |
 
-Open Command Prompt as Administrator and navigate to the project folder:
+> **⚠️ Important:** Ensure that the port, AE Title, film-size identifier, configuration file, and database paths agree with the values supported by your DCMTK configuration and project.
 
+---
+
+## 📦 Install Dependencies
+
+Open **Command Prompt as Administrator**.
+
+Navigate to the project directory:
+
+```bat
 cd /d C:\xampp\htdocs\dicom_print
+```
 
+Install the Node.js dependencies:
 
-1. Install required Node.js packages:
-
+```bash
 npm install
+```
 
+Wait for npm to finish. Resolve any reported dependency or installation errors before proceeding.
 
-2. Open the port in Windows Firewall:
+---
 
-(Assuming you are using default port 1122)
+## 🔥 Configure Windows Firewall
 
+Allow incoming TCP traffic on port `1122`, assuming this is the configured DICOM listener port.
+
+Run the following command in an elevated Command Prompt:
+
+```bat
 netsh advfirewall firewall add rule name="DICOM Print 1122" dir=in action=allow protocol=TCP localport=1122
+```
 
+Verify the rule:
 
-🟢 Starting the Service (PM2)
+```bat
+netsh advfirewall firewall show rule name="DICOM Print 1122"
+```
 
-To keep the application running in the background and ensure it starts automatically on system reboot, install PM2:
+**Security recommendations**
 
-npm install -g pm2 pm2-windows-startup
+- Restrict access to trusted modality devices and authorized network segments wherever possible.
+- Do not expose the DICOM listener or patient PDF files directly to the public internet.
+- Configure firewall rules according to your hospital's network security policy.
+
+---
+
+## 🟢 Start Background Services with PM2
+
+PM2 manages the DICOM receiver and PDF watcher as background processes.
+
+### 1. Install PM2
+
+```bash
+npm install -g pm2
+```
+
+For Windows startup integration, install the startup package:
+
+```bash
+npm install -g pm2-windows-startup
+```
+
+Register PM2 for startup:
+
+```bash
 pm2-startup install
+```
 
+> **Windows note:** Startup integration may depend on the installed PM2 startup package version and Windows configuration. Verify that the startup command succeeds and follow any instructions printed by the package.
 
-Start your background services:
+### 2. Start the Applications
 
+From the project directory, run:
+
+```bash
 pm2 start ecosystem.config.js
+```
+
+Save the current process list:
+
+```bash
 pm2 save
+```
 
+### 3. Verify Service Status
 
-Verify everything is running properly:
-
+```bash
 pm2 list
+```
 
+Both applications should show an `online` status:
 
-✅ Both dicom-print-scp and dicom-pdf-watcher should show a status of online.
+| Application | Expected status |
+|---|---|
+| `dicom-print-scp` | `online` |
+| `dicom-pdf-watcher` | `online` |
 
-🎯 Usage
+### 4. View Logs
 
-Configure your Modality: Set up your CT/MRI DICOM Printer settings with the AE Title (PDF_DICOM), the PC's IP Address, and the Port (1122).
+Check the logs if a service fails to start.
 
-Access Dashboard: Open your web browser and navigate to http://YOUR-SERVER-IP/dicom_print/ to view and download your generated PDFs. 🎉
+```bash
+pm2 logs
+```
+
+View logs for an individual process:
+
+```bash
+pm2 logs dicom-print-scp
+```
+
+```bash
+pm2 logs dicom-pdf-watcher
+```
+
+### 5. Restart or Stop Services
+
+Restart both applications:
+
+```bash
+pm2 restart all
+```
+
+Stop both applications:
+
+```bash
+pm2 stop all
+```
+
+Remove the applications from PM2:
+
+```bash
+pm2 delete all
+```
+
+**Note:** `pm2 delete all` removes all processes from the current PM2 process list, not just this project. Use it carefully if other applications are managed by PM2.
+
+---
+
+## 🌐 Access the Web Dashboard
+
+After Apache and the required background services are running, open a browser on the server or an authorized device on the same network.
+
+**Local access**
+
+```text
+http://localhost/dicom_print/
+```
+
+**Network access**
+
+```text
+http://YOUR-SERVER-IP/dicom_print/
+```
+
+Replace `YOUR-SERVER-IP` with the Windows server's actual LAN IP address.
+
+Example:
+
+```text
+http://192.168.1.100/dicom_print/
+```
+
+The example IP is illustrative. Use the IP address assigned to your server.
+
+---
+
+## 🏥 Configure the DICOM Modality
+
+Configure the CT, MRI, or X-Ray modality to send print jobs to the Windows server.
+
+| Modality setting | Configuration |
+|---|---|
+| Printer / Destination AE Title | `PDF_DICOM` |
+| Destination IP Address | Windows server's LAN IP |
+| Destination TCP Port | `1122` |
+| Network protocol | DICOM over TCP/IP |
+
+Before testing, confirm that the modality supports the configured DICOM Print service and that the AE Title, port, and network settings match the receiver configuration.
+
+**Recommended validation procedure**
+
+1. Confirm that the DICOM receiver is running in PM2.
+2. Verify network connectivity and firewall permissions.
+3. Send a test print from the modality.
+4. Check the DICOM receiver logs for incoming activity.
+5. Confirm that the print job is processed.
+6. Verify that the generated PDF is available through the dashboard.
+7. Check the PDF's page dimensions and image orientation.
+
+---
+
+## 🛠️ Troubleshooting
+
+### Problem: DICOM receiver is offline
+
+**Possible causes**
+- Incorrect DCMTK installation path.
+- Missing or invalid configuration file.
+- Port already in use.
+- Incorrect project directory.
+- Invalid PM2 configuration.
+
+**Check the logs:**
+
+```bash
+pm2 logs dicom-print-scp
+```
+
+Verify that `dcmprscp.cfg` exists and that the configured DCMTK executable is present.
+
+### Problem: No PDF files are generated
+
+**Possible causes**
+- The modality cannot connect to the receiver.
+- The print job was not received or processed successfully.
+- The watcher is not running.
+- Database or output paths are incorrect.
+- A file permission or processing error occurred.
+
+**Check both services:**
+
+```bash
+pm2 logs dicom-print-scp
+pm2 logs dicom-pdf-watcher
+```
+
+Confirm that the expected data directories exist and that the application account has the necessary permissions.
+
+### Problem: The dashboard does not open
+
+**Check the following:**
+
+- Apache is running in the XAMPP Control Panel.
+- The project is located inside `C:\xampp\htdocs\dicom_print`.
+- The correct URL is being used.
+- PHP errors or Apache errors are not preventing the page from loading.
+- The Windows firewall allows the required web traffic.
+
+### Problem: The modality cannot connect
+
+**Verify the network settings:**
+
+- Correct server IP address.
+- Correct AE Title: `PDF_DICOM`.
+- Correct destination port: `1122`.
+- Windows Firewall rules.
+- No other process is using the configured port.
+- The receiver is listening on the appropriate network interface.
+
+### Problem: PM2 services do not start after reboot
+
+**Verify the startup integration:**
+
+```bash
+pm2 list
+pm2 save
+```
+
+Confirm that the Windows startup integration is installed correctly for the account running PM2. Test after a controlled restart.
+
+---
+
+## 🔐 Security & Patient Data Protection
+
+This application may handle sensitive medical images and patient information. Deploy it with appropriate safeguards.
+
+- 🔒 Restrict access to authorized users and trusted devices.
+- 🛡️ Use firewall rules to limit DICOM traffic to approved network sources.
+- 🌐 Avoid exposing the dashboard or DICOM receiver directly to the internet.
+- 📁 Protect PDF output directories and database files with appropriate Windows permissions.
+- 💾 Maintain secure backups and an appropriate retention policy.
+- 🧹 Remove temporary files and retained patient data according to organizational policy.
+- 🔑 Add suitable authentication and access controls if the dashboard does not already provide them.
+- 📋 Follow applicable healthcare privacy, security, and data-retention requirements.
+
+---
+
+## 📁 Project Configuration Summary
+
+| Component | Purpose |
+|---|---|
+| `ecosystem.config.js` | PM2 application definitions |
+| `scp-runner.js` | Starts the configured DICOM print receiver |
+| `watcher.js` | Monitors print-processing files or events |
+| `dcmprscp.cfg` | DCMTK print configuration |
+| `config.json` | Application and network settings |
+| `data/database` | Configured print database directory |
+| `index.php` | Dashboard entry point, if included in the project |
+
+*The filenames and responsibilities above reflect the documented configuration. Actual behavior depends on the project's implementation.*
+
+---
+
+## ✅ Deployment Checklist
+
+Before using the system in a production environment, verify each item.
+
+- [ ] XAMPP and Apache are installed and running.
+- [ ] Node.js and npm are installed.
+- [ ] DCMTK binaries are available.
+- [ ] All project paths are correct.
+- [ ] The configuration files are valid.
+- [ ] Node.js dependencies are installed.
+- [ ] The configured DICOM port is reachable from authorized devices.
+- [ ] Both PM2 services are online.
+- [ ] The modality can successfully send a test print.
+- [ ] Generated PDFs have been checked for correct dimensions and image content.
+- [ ] Dashboard access and file permissions have been tested.
+- [ ] Patient-data security and backup procedures are in place.
+
+---
+
+## 📄 License
+
+Add the applicable license for this project before distributing it publicly. If no license is provided, the repository should not be assumed to grant permission to reuse, modify, or redistribute its code.
+
+---
+
+<p align="center">
+  <strong>DICOM Print to PDF Server</strong>
+  <br>
+  Simplifying DICOM film-print workflows with PDF output and browser-based access.
+</p>
